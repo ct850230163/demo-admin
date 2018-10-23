@@ -1,0 +1,135 @@
+server:
+  #tomcat运行端口
+  port: 9020
+
+
+# 注册到eureka-server上
+eureka:
+  instance:
+    # 主机名称
+    hostname: ${spring.cloud.client.ipAddress}
+    # 自定义实例ID
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    # 显示IP地址
+    prefer-ip-address: true
+    # 心跳时间，即服务续约间隔时间（缺省为30s）
+    lease-renewal-interval-in-seconds: 5
+    # 过期剔除时间，即服务续约到期时间（缺省为90s）
+    lease-expiration-duration-in-seconds: 10
+  client:
+    # 是否将eureka自身作为应用注册到eureka注册中心
+    register-with-eureka: true
+    # 客户端是否获取eureka服务器注册表上的注册信息，默认为true
+    fetch-registry: true
+    # 设置拉取服务注册信息时间（缺省为60s）
+    registry-fetch-interval-seconds: 30
+    # Eureka服务
+    serviceUrl:
+      #服务注册中心地址
+      defaultZone: ${eureka.defaultZone}
+    healthcheck:
+      # 开启健康检查
+      enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+
+feign:
+  httpclient:
+    enabled: true
+
+spring:
+  profiles:
+    active: local
+    include:
+    - redis
+  application:
+    name: admin-server
+  http:
+    encoding:
+      force: false
+      enabled: true
+      charset: utf-8
+    multipart:
+      #默认支持文件上传
+      enabled: true
+      #支持文件写入磁盘
+      file-size-threshold: 0
+      # 最大支持文件大小
+      max-file-size: 100Mb
+      # 最大支持请求大小
+      max-request-size: 100Mb
+
+  #数据库源设置
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://${app.datasource.host}/${app.datasource.name}?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: ${app.datasource.username}
+    password: ${app.datasource.password}
+    druid:
+      #初始化连接数量，最大最小连接数
+      initialSize: 5
+      maxActive: 10
+      minIdle: 3
+      #获取连接等待超时的时间
+      maxWait: 600000
+      #超过时间限制是否回收
+      removeAbandoned: true
+      #超过时间限制多长
+      removeAbandonedTimeout: 180
+      #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      timeBetweenEvictionRunsMillis: 600000
+      #配置一个连接在池中最小生存的时间，单位是毫秒
+      minEvictableIdleTimeMillis: 300000
+      #用来检测连接是否有效的sql，要求是一个查询语句
+      validationQuery: SELECT 1 FROM DUAL
+      #申请连接的时候检测
+      testWhileIdle: true
+      #申请连接时执行validationQuery检测连接是否有效，配置为true会降低性能
+      testOnBorrow: false
+      #归还连接时执行validationQuery检测连接是否有效，配置为true会降低性能
+      testOnReturn: false
+      #打开PSCache，并且指定每个连接上PSCache的大小
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 50
+      #属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：
+      #监控统计用的filter:stat 日志用的filter:log4j 防御SQL注入的filter:wall
+      filters: stat
+
+#mybatis
+mybatis-plus:
+  mapper-locations:  classpath:mapper/**/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: cn.vpclub.demo.domain.entity
+  global-config:
+    #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+    id-type: 2
+    #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+    field-strategy: 2
+    #驼峰下划线转换
+    db-column-underline: true
+    #刷新mapper 调试神器
+    refresh-mapper: true
+    #数据库大写下划线转换
+    #capital-mode: true
+    #序列接口实现类配置
+    #key-generator: cn.jeefast.xxx
+    #逻辑删除配置
+    logic-delete-value: 2
+    logic-not-delete-value: 1
+    #自定义填充策略接口实现
+    #meta-object-handler: cn.vpclub.demo.config.MyMetaObjectHandler
+    #自定义SQL注入器
+    sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+
